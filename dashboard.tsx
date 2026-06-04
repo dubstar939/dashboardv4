@@ -6,6 +6,7 @@ import {
   Calendar as CalendarIcon,
   Calculator,
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -13,6 +14,7 @@ import {
   CloudRain,
   CloudSun,
   Edit2,
+  File,
   Folder,
   Hexagon,
   ListTodo,
@@ -35,6 +37,11 @@ import {
   Volume2,
   VolumeX,
   X,
+  Youtube,
+  GripVertical,
+  ExternalLink,
+  Globe,
+  Link as LinkIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -54,13 +61,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ResizableHandle, ResizablePanelGroup, ResizablePanel } from "@/components/ui/resizable"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 // Types
 interface TodoItem {
   id: string
   text: string
   completed: boolean
-  createdAt: Date
+  createdAt: string
+  reminder?: string
 }
 
 interface CallLog {
@@ -68,20 +86,53 @@ interface CallLog {
   callerName: string
   phone: string
   notes: string
-  timestamp: Date
+  timestamp: string
+  callType: string
 }
 
 interface Project {
   id: string
   name: string
   color: string
+  files?: ProjectFile[]
+}
+
+interface ProjectFile {
+  id: string
+  name: string
+  type: string
+  url: string
 }
 
 interface Announcement {
   id: string
   title: string
   content: string
-  date: Date
+  date: string
+}
+
+interface DashboardLink {
+  id: string
+  name: string
+  url: string
+  icon?: string
+}
+
+interface WeatherLocation {
+  id: string
+  city: string
+  zipCode: string
+  temp: number
+  condition: string
+  high: number
+  low: number
+}
+
+interface YouTubeVideo {
+  id: string
+  videoId: string
+  title: string
+  thumbnail: string
 }
 
 // US Timezone data
@@ -94,12 +145,19 @@ const US_TIMEZONES = [
 ]
 
 // Weather data for top US cities
-const US_CITIES_WEATHER = [
-  { city: "New York", temp: 72, condition: "sunny", high: 78, low: 65 },
-  { city: "Los Angeles", temp: 85, condition: "sunny", high: 88, low: 70 },
-  { city: "Chicago", temp: 68, condition: "cloudy", high: 72, low: 58 },
-  { city: "Houston", temp: 92, condition: "partlyCloudy", high: 95, low: 78 },
-  { city: "Phoenix", temp: 105, condition: "sunny", high: 110, low: 85 },
+const US_CITIES_WEATHER: WeatherLocation[] = [
+  { id: "1", city: "New York", zipCode: "10001", temp: 72, condition: "sunny", high: 78, low: 65 },
+  { id: "2", city: "Los Angeles", zipCode: "90001", temp: 85, condition: "sunny", high: 88, low: 70 },
+  { id: "3", city: "Chicago", zipCode: "60601", temp: 68, condition: "cloudy", high: 72, low: 58 },
+  { id: "4", city: "Houston", zipCode: "77001", temp: 92, condition: "partlyCloudy", high: 95, low: 78 },
+  { id: "5", city: "Phoenix", zipCode: "85001", temp: 105, condition: "sunny", high: 110, low: 85 },
+]
+
+// Search engines
+const SEARCH_ENGINES = [
+  { name: "Google", url: "https://www.google.com/search?q=" },
+  { name: "DuckDuckGo", url: "https://duckduckgo.com/?q=" },
+  { name: "Bing", url: "https://www.bing.com/search?q=" },
 ]
 
 // Radio stations
@@ -111,7 +169,7 @@ const RADIO_STATIONS = [
   { name: "Chill Hop", genre: "Chill", url: "https://streams.ilovemusic.de/iloveradio17.mp3" },
 ]
 
-// News headlines
+// News headlines (placeholder - will be replaced with API)
 const NEWS_HEADLINES = [
   "Tech stocks surge as AI investments continue to drive market growth",
   "Climate summit reaches historic agreement on carbon reduction targets",
@@ -131,6 +189,9 @@ const PROJECT_COLORS = [
   "bg-indigo-500",
   "bg-teal-500",
 ]
+
+// Call types for dropdown
+const CALL_TYPES = ["Incoming", "Outgoing", "Missed", "Voicemail"]
 
 export default function Dashboard() {
   const [theme, setTheme] = useState<"dark" | "light">("dark")
