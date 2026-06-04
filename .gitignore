@@ -1,1 +1,19 @@
-Nothing should be ignored based on the provided file changes. The only modified file is `dashboard.tsx`, which is a source code file and should not be added to .gitignore.
+```
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Editors
+.vscode/
+
+# Original rules preserved
+*.log
+```
