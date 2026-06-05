@@ -77,7 +77,7 @@ interface TodoItem {
   id: string
   text: string
   completed: boolean
-  createdAt: string
+  createdAt: Date
   reminder?: string
 }
 
@@ -86,8 +86,8 @@ interface CallLog {
   callerName: string
   phone: string
   notes: string
-  timestamp: string
-  callType: string
+  timestamp: Date
+  callType?: string
 }
 
 interface Project {
@@ -108,7 +108,7 @@ interface Announcement {
   id: string
   title: string
   content: string
-  date: string
+  date: Date
 }
 
 interface DashboardLink {
