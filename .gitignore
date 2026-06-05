@@ -1,19 +1,30 @@
 ```
+# Next.js build outputs
+.next/
+
 # Dependencies
 node_modules/
+.pnpm-store/
 
-# Environment
-.env
+# Environment variables
 .env.local
+.env
 .env.*
 
-# Logs and temp files
+# Logs
 *.log
+
+# Temporary files
 *.tmp
+*.swp
+*~
 
-# Editors
-.vscode/
+# OS generated files
+.DS_Store
+Thumbs.db
 
-# Original rules preserved
-*.log
+# Build outputs (general)
+dist/
+build/
+target/
 ```
