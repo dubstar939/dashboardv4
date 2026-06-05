@@ -77,7 +77,7 @@ interface TodoItem {
   id: string
   text: string
   completed: boolean
-  createdAt: string
+  createdAt: Date
   reminder?: string
 }
 
@@ -86,7 +86,7 @@ interface CallLog {
   callerName: string
   phone: string
   notes: string
-  timestamp: string
+  timestamp: Date
   callType: string
 }
 
@@ -108,7 +108,7 @@ interface Announcement {
   id: string
   title: string
   content: string
-  date: string
+  date: Date
 }
 
 interface DashboardLink {
@@ -210,10 +210,10 @@ export default function Dashboard() {
   
   // Call log state
   const [callLogs, setCallLogs] = useState<CallLog[]>([
-    { id: "1", callerName: "John Smith", phone: "555-0123", notes: "Discussed project timeline", timestamp: new Date() },
-    { id: "2", callerName: "Sarah Johnson", phone: "555-0456", notes: "Follow up on proposal", timestamp: new Date(Date.now() - 3600000) },
+    { id: "1", callerName: "John Smith", phone: "555-0123", notes: "Discussed project timeline", timestamp: new Date(), callType: "Incoming" },
+    { id: "2", callerName: "Sarah Johnson", phone: "555-0456", notes: "Follow up on proposal", timestamp: new Date(Date.now() - 3600000), callType: "Outgoing" },
   ])
-  const [newCall, setNewCall] = useState({ callerName: "", phone: "", notes: "" })
+  const [newCall, setNewCall] = useState({ callerName: "", phone: "", notes: "", callType: "Incoming" })
   
   // Projects state
   const [projects, setProjects] = useState<Project[]>([
@@ -887,7 +887,7 @@ export default function Dashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
                   <Input
                     placeholder="Caller Name"
                     value={newCall.callerName}
@@ -900,6 +900,16 @@ export default function Dashboard() {
                     onChange={(e) => setNewCall({ ...newCall, phone: e.target.value })}
                     className="bg-slate-800 border-slate-700 text-sm h-8 text-white placeholder:text-slate-400"
                   />
+                  <Select value={newCall.callType} onValueChange={(value) => setNewCall({ ...newCall, callType: value })}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-sm h-8 text-white">
+                      <SelectValue placeholder="Call Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CALL_TYPES.map((type) => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     placeholder="Notes"
                     value={newCall.notes}
@@ -915,12 +925,22 @@ export default function Dashboard() {
                     {callLogs.map((log) => (
                       <div key={log.id} className="flex items-center justify-between bg-slate-800/40 rounded-md px-3 py-2 border border-slate-700/30">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-cyan-500/20 rounded-full">
-                            <Phone className="h-3 w-3 text-cyan-400" />
+                          <div className={`p-2 rounded-full ${
+                            log.callType === 'Incoming' ? 'bg-green-500/20' :
+                            log.callType === 'Outgoing' ? 'bg-blue-500/20' :
+                            log.callType === 'Missed' ? 'bg-red-500/20' :
+                            'bg-purple-500/20'
+                          }`}>
+                            <Phone className={`h-3 w-3 ${
+                              log.callType === 'Incoming' ? 'text-green-400' :
+                              log.callType === 'Outgoing' ? 'text-blue-400' :
+                              log.callType === 'Missed' ? 'text-red-400' :
+                              'text-purple-400'
+                            }`} />
                           </div>
                           <div>
                             <div className="text-sm font-medium text-slate-200">{log.callerName}</div>
-                            <div className="text-xs text-slate-500">{log.phone}</div>
+                            <div className="text-xs text-slate-500">{log.phone} • <Badge variant="outline" className="text-[10px] h-4">{log.callType}</Badge></div>
                           </div>
                         </div>
                         <div className="text-right">
